@@ -5,11 +5,12 @@ using AntiAfkKick;
 using Dalamud.Hooking;
 using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using Lumina.Excel.GeneratedSheets;
 using static AntiAfkKick.Native.Keypress;
 
 namespace AntiAfkKick_Dalamud;
 
-internal unsafe class AntiAfkKick : IDalamudPlugin
+internal unsafe class AntiAfkKickinHighEndDuty : IDalamudPlugin
 {
     //long NextKeyPress = 0;
     private           IntPtr        BaseAddress = IntPtr.Zero;
@@ -18,7 +19,7 @@ internal unsafe class AntiAfkKick : IDalamudPlugin
     private           float*        AfkTimer3;
     private readonly  Hook<UnkFunc> UnkFuncHook;
     internal volatile bool          running = true;
-    public            string        Name => "AntiAfkKick-Dalamud";
+    public            string        Name => "AntiAfkKickinHighEndDuty";
 
     private delegate long UnkFunc(IntPtr a1, float a2);
 
@@ -29,10 +30,11 @@ internal unsafe class AntiAfkKick : IDalamudPlugin
             UnkFuncHook.Dispose();
         }
 
-        running = false;
+        running                          =  false;
+        Svc.ClientState.TerritoryChanged -= OnTerritoryChanged;
     }
 
-    public AntiAfkKick(DalamudPluginInterface pluginInterface)
+    public AntiAfkKickinHighEndDuty(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<Svc>();
         UnkFuncHook = Svc.Hook.HookFromAddress<UnkFunc>(Svc.SigScanner.ScanText("48 8B C4 48 89 58 18 48 89 70 20 55 57 41 54 41 56 41 57 48 8D 68 A1"), UnkFunc_Dtr);
@@ -42,6 +44,7 @@ internal unsafe class AntiAfkKick : IDalamudPlugin
         } catch (Exception e) {
             Svc.Log.Error(e.Message + "\n" + e.StackTrace ?? "");
         }
+        Svc.ClientState.TerritoryChanged += OnTerritoryChanged;
     }
 
     private void BeginWork()
@@ -92,11 +95,21 @@ internal unsafe class AntiAfkKick : IDalamudPlugin
                 UnkFuncHook.Dispose();
                 Svc.Log.Debug("Hook disposed");
             }
-
-            BeginWork();
+            
         }, Svc.Framework);
         return UnkFuncHook.Original(a1, a2);
     }
 
     public static float Max(params float[] values) => values.Max();
+    
+    private void OnTerritoryChanged(ushort territoryId)
+    {
+        if( Svc.DataManager.Excel.GetSheet<TerritoryType>()?.GetRow(territoryId)?.ContentFinderCondition?.Value?.HighEndDuty == true) {
+            running = true;
+            BeginWork();
+        }
+        else
+            running = false;
+        Svc.Log.Information("Territory changed. Running: " + running);
+    }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using Dalamud.Logging;
 using Dalamud.Plugin.Services;
+using Action = System.Action;
 
 namespace AntiAfkKick;
 
@@ -10,6 +10,7 @@ internal class TickScheduler : IDisposable
     private readonly Action     function;
     private readonly IFramework framework;
 
+
     public TickScheduler(Action function, IFramework framework, long delayMS = 0)
     {
         executeAt        =  Environment.TickCount64 + delayMS;
@@ -18,7 +19,12 @@ internal class TickScheduler : IDisposable
         framework.Update += Execute;
     }
 
-    public void Dispose() { framework.Update -= Execute; }
+
+
+    public void Dispose()
+    {
+        framework.Update -= Execute; 
+    }
 
     private void Execute(object _)
     {
@@ -26,7 +32,7 @@ internal class TickScheduler : IDisposable
         try {
             function();
         } catch (Exception e) {
-            PluginLog.Error(e.Message + "\n" + e.StackTrace ?? "");
+            Svc.Log.Error(e.Message + "\n" + e.StackTrace ?? "");
         }
 
         Dispose();
