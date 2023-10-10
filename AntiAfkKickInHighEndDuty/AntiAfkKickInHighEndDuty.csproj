@@ -3,9 +3,9 @@
     <PropertyGroup>
         <Authors>X'pahtalo</Authors>
         <Version>2.1.0.5</Version>
-        <AssemblyName>AntiAfkKickinHighEndDuty</AssemblyName>
-        <RootNamespace>AntiAfkKickinHighEndDuty</RootNamespace>
-        <Product>AntiAfkKickinHighEndDuty</Product>
+        <RootNamespace>AntiAfkKickInHighEndDuty</RootNamespace>
+        <Product>AntiAfkKickInHighEndDuty</Product>
+        <PackageId>AntiAfkKickInHighEndDuty</PackageId>
     </PropertyGroup>
 
     <PropertyGroup>

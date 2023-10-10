@@ -3,7 +3,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 
-namespace AntiAfkKick;
+namespace AntiAfkKickInHighEndDuty;
 
 internal class Svc
 {

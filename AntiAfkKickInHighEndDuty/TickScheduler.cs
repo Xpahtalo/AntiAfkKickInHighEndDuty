@@ -2,7 +2,7 @@
 using Dalamud.Plugin.Services;
 using Action = System.Action;
 
-namespace AntiAfkKick;
+namespace AntiAfkKickInHighEndDuty;
 
 internal class TickScheduler : IDisposable
 {

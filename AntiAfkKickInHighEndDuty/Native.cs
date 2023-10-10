@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace AntiAfkKick;
+namespace AntiAfkKickInHighEndDuty;
 
 internal class Native
 {
