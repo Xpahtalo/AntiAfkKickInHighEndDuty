@@ -1,46 +1,34 @@
-﻿using Dalamud.Game;
+﻿using System;
 using Dalamud.Logging;
-using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AntiAfkKick
+namespace AntiAfkKick;
+
+internal class TickScheduler : IDisposable
 {
-    class TickScheduler : IDisposable
+    private readonly long       executeAt;
+    private readonly Action     function;
+    private readonly IFramework framework;
+
+    public TickScheduler(Action function, IFramework framework, long delayMS = 0)
     {
-        long executeAt;
-        Action function;
-        IFramework framework;
+        executeAt        =  Environment.TickCount64 + delayMS;
+        this.function    =  function;
+        this.framework   =  framework;
+        framework.Update += Execute;
+    }
 
-        public TickScheduler(Action function, IFramework framework, long delayMS = 0)
-        {
-            this.executeAt = Environment.TickCount64 + delayMS;
-            this.function = function;
-            this.framework = framework;
-            framework.Update += Execute;
+    public void Dispose() { framework.Update -= Execute; }
+
+    private void Execute(object _)
+    {
+        if (Environment.TickCount64 < executeAt) return;
+        try {
+            function();
+        } catch (Exception e) {
+            PluginLog.Error(e.Message + "\n" + e.StackTrace ?? "");
         }
 
-        public void Dispose()
-        {
-            framework.Update -= Execute;
-        }
-
-        void Execute(object _)
-        {
-            if (Environment.TickCount64 < executeAt) return;
-            try
-            {
-                function();
-            }
-            catch(Exception e)
-            {
-                PluginLog.Error(e.Message + "\n" + e.StackTrace ?? "");
-            }
-            this.Dispose();
-        }
+        Dispose();
     }
 }
