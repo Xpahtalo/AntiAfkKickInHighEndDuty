@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using AntiAfkKick;
 using Dalamud.Hooking;
 using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using Lumina.Excel.GeneratedSheets;
-using static AntiAfkKick.Native.Keypress;
+using static AntiAfkKickInHighEndDuty.Native.Keypress;
 
-namespace AntiAfkKick_Dalamud;
+namespace AntiAfkKickInHighEndDuty;
 
-internal unsafe class AntiAfkKickinHighEndDuty : IDalamudPlugin
+internal unsafe class AntiAfkKickInHighEndDuty : IDalamudPlugin
 {
     //long NextKeyPress = 0;
     private           IntPtr        BaseAddress = IntPtr.Zero;
@@ -18,8 +17,8 @@ internal unsafe class AntiAfkKickinHighEndDuty : IDalamudPlugin
     private           float*        AfkTimer2;
     private           float*        AfkTimer3;
     private readonly  Hook<UnkFunc> UnkFuncHook;
-    internal volatile bool          running = true;
-    public            string        Name => "AntiAfkKickinHighEndDuty";
+    internal volatile bool          running;
+    public            string        Name => "AntiAfkKickInHighEndDuty";
 
     private delegate long UnkFunc(IntPtr a1, float a2);
 
@@ -34,7 +33,7 @@ internal unsafe class AntiAfkKickinHighEndDuty : IDalamudPlugin
         Svc.ClientState.TerritoryChanged -= OnTerritoryChanged;
     }
 
-    public AntiAfkKickinHighEndDuty(DalamudPluginInterface pluginInterface)
+    public AntiAfkKickInHighEndDuty(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<Svc>();
         UnkFuncHook = Svc.Hook.HookFromAddress<UnkFunc>(Svc.SigScanner.ScanText("48 8B C4 48 89 58 18 48 89 70 20 55 57 41 54 41 56 41 57 48 8D 68 A1"), UnkFunc_Dtr);
@@ -104,6 +103,7 @@ internal unsafe class AntiAfkKickinHighEndDuty : IDalamudPlugin
     
     private void OnTerritoryChanged(ushort territoryId)
     {
+        Svc.Log.Information("Territory changed.");
         if( Svc.DataManager.Excel.GetSheet<TerritoryType>()?.GetRow(territoryId)?.ContentFinderCondition?.Value?.HighEndDuty == true) {
             running = true;
             BeginWork();
